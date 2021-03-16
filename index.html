@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GitHub API Calls - BCBSA Demo</title>
+</head>
+<body>
+    <div>
+        <img src="images/GitHub-Mark-64px.png" style="vertical-align:top;"/> &nbsp;
+        <font color='grey' style="font-size: 50px; font-style: oblique;">GitHub APIs: by Mughathala Sivaji</font>
+    </div> 
+    <br /><br />
+
+    <button id = 'btnHome' style="background-color:lightgrey;">Home</button> &nbsp;
+    <button id = 'btnRefresh' style="background-color:lightgrey;">Reset</button> &nbsp;
+    <hr>
+
+    <label for="txtSearchInput" style="font-size: 25px; font-style: oblique;">Enter Search string:</label> &nbsp;
+    <input id='txtSearchInput' type='text' name='txtSearchInput' size="30"></input> &nbsp; <br /><br />
+    <button id='btnGetUsers'>Users</button> &nbsp;
+    <button id='btnGetIssues'>Issues</button> &nbsp;
+    <button id='btnGHRepos2'>Repos</button> &nbsp;
+    <button id='btnCommits'>Commits</button> &nbsp;
+
+    <!-- <button id = 'btnRefresh' style="float: right;">Reset</button> &nbsp;
+    <button id = 'btnHome' style="float: right;">Home</button> &nbsp; -->
+    <hr>
+    <font color="grey" style="font-size: 20px;font-weight: bolder;"><div id = 'divOutput'></div></font>
+
+    <script>
+        //Element Events (button, div, ev)
+        const btnHome = document.getElementById('btnHome')
+        const btnReset = document.getElementById('btnRefresh')
+        const btnGetIssues = document.getElementById("btnGetIssues")
+        const btnRepos2 = document.getElementById("btnGHRepos2")
+        const divOutput = document.getElementById("divOutput")
+        const btnGetUsers = document.getElementById('btnGetUsers')
+        const divOutputDisplay = document.getElementById('divOutput')
+        const txtSearchAreaInput = document.getElementById('txtSearchInput')
+        const btnCommits = document.getElementById("btnCommits")
+
+        btnHome.addEventListener("click", e=> navigatgeToPage("index.html"))
+        btnReset.addEventListener("click", resetNClear)
+        btnGetIssues.addEventListener("click", getIssues)
+        btnRepos2.addEventListener("click", e=> getGBReposInline(txtSearchAreaInput.value))
+        //txtSearchAreaInput.addEventListener("keyup", e=> getUsers())
+        btnGetUsers.addEventListener("click", e=> getUsers(txtSearchAreaInput.value))
+        divOutputDisplay.addEventListener("load", e=> getUsers())
+        btnCommits.addEventListener("click", getCommits)
+
+        async function getCommits(){
+            resetNClear()
+
+            const url = "https://api.github.com/search/commits?q=author:mughathala"
+            const response = await fetch(url)
+            const result = await response.json()
+
+            divOutput.appendChild(document.createElement("br"))
+            divOutput.appendChild(document.createTextNode("Query: [" +url+ "]"))
+            divOutput.appendChild(document.createElement("hr"))
+
+            result.items.forEach(iItem=>{
+                const anchorLink = document.createElement("a")
+                anchorLink.href = iItem.html_url
+                anchorLink.textContent = iItem.title
+                anchorLink.target = "_blank"
+
+                const imgAvatar = document.createElement("img")
+                imgAvatar.src = iItem.assignee.avaztar_url
+                imgAvatar.style.width = "32px"
+                imgAvatar.style.height = "32px"
+
+                divOutput.appendChild(imgAvatar) //add image avatar 
+                
+                divOutput.appendChild(document.createTextNode('\u00A0\u00A0')) //adding a space between elements
+                divOutput.appendChild(document.createTextNode('['+iItem.assignee.login+']'))
+
+                divOutput.appendChild(document.createTextNode('\u00A0\u00A0')) //adding a space between elements
+                divOutput.appendChild(anchorLink)
+
+                divOutput.appendChild(document.createElement("br"))
+            })
+        }
+
+        async function getIssues(){
+            resetNClear()
+
+            const url = "https://api.github.com/search/issues?q=author:mughathala repo:mughathala/HPRepo1_Public type:issue"
+            const response = await fetch(url)
+            const result = await response.json()
+
+            divOutput.appendChild(document.createElement("br"))
+            divOutput.appendChild(document.createTextNode("Query: [" +url+ "]"))
+            divOutput.appendChild(document.createElement("hr"))
+
+            result.items.forEach(iItem=>{
+                const anchorLink = document.createElement("a")
+                anchorLink.href = iItem.html_url
+                anchorLink.textContent = iItem.title
+                anchorLink.target = "_blank"
+
+                const imgAvatar = document.createElement("img")
+                imgAvatar.src = iItem.assignee.avaztar_url
+                imgAvatar.style.width = "32px"
+                imgAvatar.style.height = "32px"
+
+                divOutput.appendChild(imgAvatar) //add image avatar 
+                
+                divOutput.appendChild(document.createTextNode('\u00A0\u00A0')) //adding a space between elements
+                divOutput.appendChild(document.createTextNode('['+iItem.assignee.login+']'))
+
+                divOutput.appendChild(document.createTextNode('\u00A0\u00A0')) //adding a space between elements
+                divOutput.appendChild(anchorLink)
+
+                divOutput.appendChild(document.createElement("br"))
+            })
+        }
+
+        //Functions
+        async function getUsers(queryString="mughathala"){
+            resetNClear()
+
+            if(queryString==''){
+                queryString = 'default' //defaulting to a search string
+            }
+
+            const queryURL = "https://api.github.com/search/users?q="+queryString
+            const fetchURL = await fetch(queryURL)
+            const result = await fetchURL.json()
+
+            divOutputDisplay.appendChild(document.createElement("br"))
+
+            result.items.forEach(iItems => {
+                
+                const imgAvatar = document.createElement("img")
+                imgAvatar.src = iItems.avatar_url
+                imgAvatar.style.width = "32px"
+                imgAvatar.style.height = "32px"
+
+                const aLink = document.createElement("a")
+                aLink.href = iItems.html_url
+                aLink.textContent = iItems.login
+                aLink.target = "_blank"
+
+                divOutputDisplay.appendChild(imgAvatar) //add image avatar 
+                divOutputDisplay.appendChild(document.createTextNode('\u00A0\u00A0')) //adding a space between elements
+                divOutputDisplay.appendChild(aLink) //add link with user-login
+                divOutputDisplay.appendChild(document.createElement('br'))
+                //divOutputDisplay.innerHTML += "<p>" + iItems.login + "</p>"
+            });
+    }
+
+        async function getGBReposinConsole(){
+            resetNClear()
+
+            const url = "https://api.github.com/search/repositories?q=stars:>100000"
+            const response = await fetch(url)
+
+            const result = await response.json()
+            
+            result.items.forEach(iItem=>console.log(iItem.full_name))
+            console.log(result)
+
+            divOutput.appendChild(document.createElement("br"))
+            divOutput.appendChild(document.createTextNode("Successfully displayed query output to console!"))
+        }
+        
+        async function getGBReposInline(queryString="mughathala/HPRepo1_Public"){
+            resetNClear()
+
+            //const url = "https://api.github.com/search/repositories?q=stars:>100000"
+            const url = "https://api.github.com/search/repositories?q=repos:"+queryString
+            const response = await fetch(url)
+            const result = await response.json()
+
+            /*result.items.forEach(i=>{
+                divOutput.appendChild(document.createTextNode(i.full_name))
+                divOutput.appendChild(document.createElement("br"))
+            })*/
+
+            divOutput.appendChild(document.createElement("br"))
+            divOutput.appendChild(document.createTextNode("Query: [" +url+ "]"))
+            divOutput.appendChild(document.createElement("hr"))
+
+            result.items.forEach(iItem=>{
+                const anchorLink = document.createElement("a")
+                anchorLink.href = iItem.html_url
+                anchorLink.textContent = iItem.full_name
+                anchorLink.target = "_blank"
+
+                const imgAvatar = document.createElement("img")
+                imgAvatar.src = iItem.owner.avatar_url
+                imgAvatar.style.width = "32px"
+                imgAvatar.style.height = "32px"
+
+                divOutput.appendChild(imgAvatar) //add image avatar 
+
+                divOutput.appendChild(document.createTextNode('\u00A0\u00A0')) //adding a space between elements
+                divOutput.appendChild(document.createTextNode('['+iItem.owner.login+']'))
+
+                divOutput.appendChild(document.createTextNode('\u00A0\u00A0')) //adding a space between elements
+                divOutput.appendChild(anchorLink)
+
+                divOutput.appendChild(document.createElement("br"))
+            })
+        }
+
+        async function navigatgeToPage(url="www.google.com"){
+            location.href = url;
+        }
+
+        function resetNClear(){
+            while(divOutput.firstChild){
+                divOutput.removeChild(divOutput.firstChild);
+            }
+
+            while(divOutputDisplay.firstChild){
+                divOutputDisplay.removeChild(divOutputDisplay.firstChild);
+            }
+        }
+
+    </script>
+</body>
+</html>
